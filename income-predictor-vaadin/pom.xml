@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>oscuroweb.ia</groupId>
@@ -15,7 +15,8 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.1.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath />
+		<!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
@@ -23,6 +24,10 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<vaadin.version>8.2.0</vaadin.version>
+		<project.build.finalName>${project.name}</project.build.finalName>
+		<artifact.extension>jar</artifact.extension>
+		<maven-docker-fabric8.version>0.23.0</maven-docker-fabric8.version>
+		<vaadin.port>8080</vaadin.port>
 	</properties>
 
 	<dependencies>
@@ -90,15 +95,19 @@
 	</dependencyManagement>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/webapp</directory>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<arguments>
-						<argument>src/main/webapp/VAADIN/themes/**/**</argument>
-					</arguments>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.vaadin</groupId>
@@ -115,10 +124,66 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin><plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>${maven-docker-fabric8.version}</version>
+				<configuration>
+					<logDate>medium</logDate>
+					<images>
+						<image>
+							<name>${project.name}:${project.version}</name>
+							<alias>${project.name}</alias>
+							<build>
+								<from>java:8u40</from>
+								<assembly>
+									<descriptorRef>artifact-with-dependencies</descriptorRef>
+								</assembly>
+								<cmd>java -Djava.security.egd=file:/dev/./urandom -jar -Xdebug /maven/${project.build.finalName}.${artifact.extension}</cmd>
+							</build>
+							<run>
+								<env>
+        							<SERVICE_HOSTNAME>income-predictor-service</SERVICE_HOSTNAME>
+									<SERVICE_PORT>8082</SERVICE_PORT>
+									<VAADIN_PORT>${vaadin.port}</VAADIN_PORT>
+								</env>
+								<ports>
+									<port>${vaadin.port}:8080</port>
+								</ports>
+								<log>
+									<date>MEDIUM</date>
+									<color>MAGENTA</color>
+									<prefix>%a></prefix>
+								</log>
+							</run>
+						</image>
+					</images>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-image</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>start</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>build</goal>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
-
-
-
 </project>

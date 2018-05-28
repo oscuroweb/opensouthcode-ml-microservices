@@ -1,0 +1,27 @@
+version: '2.3'
+services:
+  income-predictor-ml:
+      image: income-predictor-ml:0.0.1-SNAPSHOT
+      ports: 
+        - 8081:8081
+      environment:
+        - DATASET_PATH=/data/income-predictor/input-data/
+        - MODEL_PATH=/data/income-predictor/output-data/
+      volumes:
+        - C:\workspace\opensouthcode-ml-microservices\income-predictor-data:/data/income-predictor
+  income-predictor-service:
+      image: income-predictor-service:0.0.1-SNAPSHOT
+      ports: 
+        - 8082:8082
+      environment:
+        - DATASET_PATH=/data/income-predictor/input-data/
+        - MODEL_PATH=/data/income-predictor/output-data/
+      volumes:
+        - C:\workspace\opensouthcode-ml-microservices\income-predictor-data:/data/income-predictor
+  income-predictor-vaadin:
+      image: income-predictor-vaadin:0.0.1-SNAPSHOT
+      ports: 
+        - 8080:8080
+      environment:
+        - VAADIN_PORT=8080
+        - SERVICE_HOSTNAME=income-predictor-service
