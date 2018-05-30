@@ -130,3 +130,5 @@ buildNumber.properties
 
 
 # End of https://www.gitignore.io/api/git,java,maven,eclipse
+
+/income-predictor-data/output-data/**
