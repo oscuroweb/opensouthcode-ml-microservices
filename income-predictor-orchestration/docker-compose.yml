@@ -8,7 +8,7 @@ services:
         - DATASET_PATH=/data/income-predictor/input-data/
         - MODEL_PATH=/data/income-predictor/output-data/
       volumes:
-        - C:\workspace\opensouthcode-ml-microservices\income-predictor-data:/data/income-predictor
+        - ${LOCAL_PATH}:/data/income-predictor
   income-predictor-service:
       image: income-predictor-service:0.0.1-SNAPSHOT
       ports: 
@@ -17,7 +17,7 @@ services:
         - DATASET_PATH=/data/income-predictor/input-data/
         - MODEL_PATH=/data/income-predictor/output-data/
       volumes:
-        - C:\workspace\opensouthcode-ml-microservices\income-predictor-data:/data/income-predictor
+        - ${LOCAL_PATH}:/data/income-predictor
   income-predictor-vaadin:
       image: income-predictor-vaadin:0.0.1-SNAPSHOT
       ports: 
