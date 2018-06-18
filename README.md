@@ -1,6 +1,6 @@
 # Integrando microservicios y Machine Learning
 
-Ejemplo de como integrar problemas de machine learning con arquitecturas de microservicios con Apache Spark y Spring boot. Puedes ver la presentación utilizada en el Opensouthcode 2018 [aquí] (https://www.slideshare.net/oscuroweb/integrando-machine-learning-y-microservicios)
+Ejemplo de como integrar problemas de machine learning con arquitecturas de microservicios con Apache Spark y Spring boot. Puedes ver la presentación utilizada en el Opensouthcode 2018 [aquí](https://www.slideshare.net/oscuroweb/integrando-machine-learning-y-microservicios)
 
 ## Directorio
 
@@ -52,7 +52,7 @@ $ cd ${WORKSPACE}/income-predictor-orchestration
 $ docker-compose up
 ```
 
-Si todo ha ido bien, habrá 3 contenedores ejecutándose y podrás entrar a la aplicación en la ruta (localhost:8080)[http://localhost:8080/]
+Si todo ha ido bien, habrá 3 contenedores ejecutándose y podrás entrar a la aplicación en la ruta [localhost:8080](http://localhost:8080/)
 
 ## Información sobre el Opensouthcode
 
