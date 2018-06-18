@@ -21,10 +21,9 @@ import oscuroweb.ia.component.Footer;
 import oscuroweb.ia.component.Header;
 
 @Slf4j
-@Theme("income")
+@Theme(value="income")
 @SpringUI
 @SpringViewDisplay
-@Viewport("width=device-width, initial-scale=1")
 public class MainUI extends UI {
 
 	private static final long serialVersionUID = -5510796932223511405L;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>oscuroweb.ia</groupId>
@@ -15,7 +15,8 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.5.9.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath />
+		<!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
@@ -28,6 +29,11 @@
 		<scala.binary.version>2.11</scala.binary.version>
 		<apache.spark.version>2.2.1</apache.spark.version>
 		<commons-math3.version>3.4.1</commons-math3.version>
+		<project.build.finalName>${project.name}</project.build.finalName>
+		<artifact.extension>jar</artifact.extension>
+		<maven-docker-fabric8.version>0.23.0</maven-docker-fabric8.version>
+		<local-volume.path>/C/workspace/opensouthcode-ml-microservices/income-predictor-data</local-volume.path>
+		<service.port>8082</service.port>
 	</properties>
 
 	<dependencies>
@@ -35,10 +41,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<exclusions>
-			<exclusion>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-logging</artifactId>
-			</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -118,12 +124,78 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>${maven-docker-fabric8.version}</version>
+				<configuration>
+					<logDate>medium</logDate>
+					<images>
+						<image>
+							<name>${project.name}:${project.version}</name>
+							<alias>income-predictor-service</alias>
+							<build>
+								<from>gettyimages/spark:latest</from>
+								<assembly>
+									<descriptorRef>artifact-with-dependencies</descriptorRef>
+								</assembly>
+								<cmd>java -Djava.security.egd=file:/dev/./urandom -jar -Xdebug /maven/${project.build.finalName}.${artifact.extension}</cmd>
+							</build>
+							<run>
+								<env>
+									<DATASET_PATH>/data/income-predictor/input-data/</DATASET_PATH>
+									<MODEL_PATH>/data/income-predictor/output-data/</MODEL_PATH>
+									<SERVICE_PORT>${service.port}</SERVICE_PORT>
+								</env>
+								<volumes>
+									<bind>
+										<volume>${local-volume.path}:/data/income-predictor</volume>
+									</bind>
+								</volumes>
+								<ports>
+									<port>${service.port}:${service.port}</port>
+								</ports>
+								<hostname>income-predictor-service</hostname>
+								<log>
+									<date>MEDIUM</date>
+									<color>YELLOW</color>
+									<prefix>%a></prefix>
+								</log>
+							</run>
+						</image>
+					</images>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-image</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>start</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>build</goal>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
